@@ -4,8 +4,8 @@ PATH := $(PATH):$(HOME)/perl5/bin
 PERL5LIB ?= $(HOME)/perl5/lib/perl5
 GITDIR := $(shell readlink -f ../../..)
 WORKINGDIR := $(PWD)
-CARTON := $(shell which carton)
-CPANM := $(shell which cpanm)
+CARTON := $(shell PATH=$(PATH) which carton)
+CPANM := $(shell PATH=$(PATH) which cpanm)
 # Set the Application ENV
 DEBUG ?= 0
 SAVE_BLANK_CONVERSATIONS ?= 1
@@ -14,7 +14,7 @@ TEMPERATURE ?= 0.6
 ifneq ($(SHOWENV),)
 	export
 else
-	export DEBUG SAVE_BLANK_CONVERSATIONS TOP_P TEMPERATURE
+	export PERL5LIB DEBUG SAVE_BLANK_CONVERSATIONS TOP_P TEMPERATURE
 endif
 
 run: /app/.env deps
