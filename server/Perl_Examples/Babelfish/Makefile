@@ -48,3 +48,7 @@ ifneq ($(SHOWENV),)
 else
 	$(MAKE) SHOWENV=1 $@
 endif
+ssh:
+	# if this fails, you need to add the IP address of your development
+	# system to /etc/hosts or to ~/.ssh/config
+	$@ signalwire-dev
