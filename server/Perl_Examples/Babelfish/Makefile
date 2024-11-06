@@ -1,15 +1,21 @@
 SHELL := /bin/bash
+# add to PATH and PERL5LIB for running `carton`
+PATH := $(PATH):$(HOME)/perl5/bin
+PERL5LIB ?= $(HOME)/perl5/lib/perl5
 GITDIR := $(shell readlink -f ../../..)
 WORKINGDIR := $(PWD)
 CARTON := $(shell which carton)
 CPANM := $(shell which cpanm)
 # Set the Application ENV
-export DEBUG := 0
-#export FROM_NUMBER=${FROM_NUMBER}
-export SAVE_BLANK_CONVERSATIONS := 1
-#export API_VERSION=api/relay/rest
-export TOP_P := 0.6
-export TEMPERATURE = 0.6
+DEBUG ?= 0
+SAVE_BLANK_CONVERSATIONS ?= 1
+TOP_P ?= 0.6
+TEMPERATURE ?= 0.6
+ifneq ($(SHOWENV),)
+	export
+else
+	export DEBUG SAVE_BLANK_CONVERSATIONS TOP_P TEMPERATURE
+endif
 
 run: /app/.env deps
 	source $< && NGROK_HOST=$${NGROK_URL:8} \
@@ -36,3 +42,9 @@ deps:
 		carton install; \
 		echo 'Installation of dependencies complete.'; \
 	fi
+env:
+ifneq ($(SHOWENV),)
+	$@
+else
+	$(MAKE) SHOWENV=1 $@
+endif
