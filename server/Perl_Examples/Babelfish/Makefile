@@ -2,6 +2,7 @@ SHELL := /bin/bash
 GITDIR := $(shell readlink -f ../../..)
 WORKINGDIR := $(PWD)
 CARTON := $(shell which carton)
+CPANM := $(shell which cpanm)
 # Set the Application ENV
 export DEBUG := 0
 #export FROM_NUMBER=${FROM_NUMBER}
@@ -16,20 +17,22 @@ run: /app/.env deps
 	carton exec perl $(WORKINGDIR)/app.pl
 /app:
 	sudo mkdir $@
-/app/.env:
+/app/.env: /app
 	sudo umount $(@D) || true
-	sudo mount --bind $(WORKINGDIR) $@
+	sudo mount --bind $(WORKINGDIR) $(@D)
 .env: env.example
 	@echo 'Must `cp env.example .env` and edit it with correct parameters`'
 deps:
 	# NOTE: Occasionally the C module will fail to install.
-	# Re-running seems to resolve the issue, so we do it twice to be sure.
-	if [ -z "$(CARTON)" ]; then \
+	# Re-running seems to resolve the issue.
+	# So, if application fails, `make REINSTALL=1`
+	if [ -z "$(CPANM)" ]; then sudo apt install cpanminus; fi
+	if [ -z "$(CARTON)" -o "$(REINSTALL)" ]; then \
 		echo -n 'Installing Perl Dependencies. '; \
 		echo 'This may take a few minutes...'; \
-		cpanm --installdeps ${WORKINGDIR} > /dev/null 2>&1; \
-		cpanm --installdeps ${WORKINGDIR} > /dev/null 2>&1; \
-		cpanm Carton > /dev/null 2>&1; \
+		cpanm --installdeps ${WORKINGDIR}; \
+		cpanm --installdeps ${WORKINGDIR}; \
+		cpanm Carton; \
 		carton install; \
 		echo 'Installation of dependencies complete.'; \
 	fi
