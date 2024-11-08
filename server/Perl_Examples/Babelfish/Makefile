@@ -41,6 +41,7 @@ deps:
 	# NOTE: Occasionally the C module will fail to install.
 	# Re-running seems to resolve the issue.
 	# So, if application fails, `make REINSTALL=1`
+	sudo apt install libssl-dev gcc g++ zlib1g-dev
 	if [ -z "$(CPANM)" ]; then sudo apt install cpanminus; fi
 	if [ -z "$(CARTON)" -o "$(REINSTALL)" ]; then \
 		echo -n 'Installing Perl Dependencies. '; \
