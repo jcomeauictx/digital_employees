@@ -11,10 +11,15 @@ DEBUG ?= 0
 SAVE_BLANK_CONVERSATIONS ?= 1
 TOP_P ?= 0.6
 TEMPERATURE ?= 0.6
+# in $HOME/.netrc, put the credentials for signalwire in, all on one line, as:
+# machine signalwire.com
+# login SPACE_NAME=spacename:FROM_NUMBER=+15555555555:DOMAIN_NAME=signalwire.com
+# password AUTH_TOKEN=authtoken account ACCOUNT_SID=accountsid
 SIGNALWIRE := signalwire.com
-FIELDS = $$1" "$$2" "$$3" "$$5" "$$7
-NETRC = machine $(SIGNALWIRE) login password account
-CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {print $$4,$$6,$$8}' ~/.netrc)
+FIELDS := $$1" "$$2" "$$3" "$$5" "$$7
+NETRC := machine $(SIGNALWIRE) login password account
+PRINT := print $$4":"$$6":"$$8
+CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {$(PRINT)}' ~/.netrc)
 ifneq ($(SHOWENV),)
 	export
 else
@@ -30,8 +35,8 @@ run: /app/.env deps
 /app/.env: /app
 	sudo umount $(@D) || true
 	sudo mount --bind $(WORKINGDIR) $(@D)
-.env: env.example
-	@echo 'Must `cp env.example .env` and edit it with correct parameters`'
+.env: .FORCE
+	echo '$(CONFIG)' | awk '{gsub(":","\n"); print}' > $@
 deps:
 	# NOTE: Occasionally the C module will fail to install.
 	# Re-running seems to resolve the issue.
@@ -56,3 +61,4 @@ ssh:
 	# if this fails, you need to add the IP address of your development
 	# system to /etc/hosts or to ~/.ssh/config
 	$@ signalwire-dev
+.FORCE:
