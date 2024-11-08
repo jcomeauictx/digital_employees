@@ -11,6 +11,10 @@ DEBUG ?= 0
 SAVE_BLANK_CONVERSATIONS ?= 1
 TOP_P ?= 0.6
 TEMPERATURE ?= 0.6
+SIGNALWIRE := signalwire.com
+FIELDS = $$1" "$$2" "$$3" "$$5" "$$7
+NETRC = machine $(SIGNALWIRE) login password account
+CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {print $$4,$$6,$$8}' ~/.netrc)
 ifneq ($(SHOWENV),)
 	export
 else
