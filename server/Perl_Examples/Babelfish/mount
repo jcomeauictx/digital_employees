@@ -1,0 +1,2 @@
+%sudo	ALL=(root) NOPASSWD: /usr/bin/mount
+%sudo	ALL=(root) NOPASSWD: /usr/bin/umount

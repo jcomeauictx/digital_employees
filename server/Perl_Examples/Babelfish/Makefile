@@ -6,6 +6,7 @@ GITDIR := $(shell readlink -f ../../..)
 WORKINGDIR := $(PWD)
 CARTON := $(shell PATH=$(PATH) which carton)
 CPANM := $(shell PATH=$(PATH) which cpanm)
+GCC := $(shell PATH=$(PATH) which gcc)
 # Set the Application ENV
 DEBUG ?= 0
 SAVE_BLANK_CONVERSATIONS ?= 1
@@ -32,8 +33,18 @@ run: /app/.env deps
 	carton exec perl $(WORKINGDIR)/app.pl
 /app:
 	sudo mkdir $@
+/etc/sudoers.d/mount: mount
+	sudo cp $< $@
 /app/.env: /app
-	sudo umount $(@D) || true
+	# can't check for presence of /etc/sudoers.d/mount due to permissions
+	# however, if you get prompted for a password here, it's not there.
+	if ! sudo umount $(@D); then \
+	 if [ -e /app/Makefile ]; then \
+	  echo 'tell $(USER) to fix sudoers.d/mount' >&2; false; \
+	 else \
+	  echo '/app already not mounted' >&2; \
+	 fi; \
+	fi
 	sudo mount --bind $(WORKINGDIR) $(@D)
 .env: .FORCE
 	echo '$(CONFIG)' | awk '{gsub(":","\n"); print}' > $@
@@ -41,7 +52,9 @@ deps:
 	# NOTE: Occasionally the C module will fail to install.
 	# Re-running seems to resolve the issue.
 	# So, if application fails, `make REINSTALL=1`
-	sudo apt install libssl-dev gcc g++ zlib1g-dev
+	if [ -z "$(GCC)" ]; then \
+	 sudo apt install libssl-dev gcc g++ zlib1g-dev; \
+	fi
 	if [ -z "$(CPANM)" ]; then sudo apt install cpanminus; fi
 	if [ -z "$(CARTON)" -o "$(REINSTALL)" ]; then \
 		echo -n 'Installing Perl Dependencies. '; \
