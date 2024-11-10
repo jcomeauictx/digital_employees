@@ -21,6 +21,7 @@ FIELDS := $$1" "$$2" "$$3" "$$5" "$$7
 NETRC := machine $(SIGNALWIRE) login password account
 PRINT := print $$4":"$$6":"$$8
 CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {$(PRINT)}' ~/.netrc | tr : " ")
+DEVBOX := $(shell getent hosts signalwire-dev | awk '{print $$1}')
 ifneq ($(SHOWENV),)
 	export
 else
@@ -79,5 +80,5 @@ endif
 ssh:
 	# if this fails, you need to add the IP address of your development
 	# system to /etc/hosts or to ~/.ssh/config
-	$@ signalwire-dev
+	$@ -t tek $@ $(DEVBOX)
 .FORCE:
