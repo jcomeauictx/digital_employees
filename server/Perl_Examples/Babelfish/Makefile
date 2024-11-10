@@ -80,5 +80,5 @@ endif
 ssh:
 	# if this fails, you need to add the IP address of your development
 	# system to /etc/hosts or to ~/.ssh/config
-	$@ -t tek $@ $(DEVBOX)
+	$@ -t remote $@ $(DEVBOX)
 .FORCE:
