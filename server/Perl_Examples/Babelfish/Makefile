@@ -27,12 +27,19 @@ else
 	export PERL5LIB DEBUG SAVE_BLANK_CONVERSATIONS TOP_P TEMPERATURE
 endif
 
-run: /app/Makefile deps
+run: /app/Makefile deps authcheck
 	$(CONFIG) NGROK_HOST=$${NGROK_URL:8} \
 	RELAY_URL="https://$${NGROK_HOST}/swml" \
 	carton exec perl $(WORKINGDIR)/app.pl 2>&1 | tee $(HOME)/app.log
 /app:
 	sudo mkdir $@
+authcheck:
+	$(CONFIG) && \
+	if [ "$${#ACCOUNT_SID}" -ne 36 ]; then \
+	 echo Did you forget to add your auth keys to $(HOME)/.netrc? >&2; \
+	 echo See the Makefile source for the specific format >&2; \
+	 false; \
+	fi
 /etc/sudoers.d/mount: mount
 	sudo cp $< $@
 /app/Makefile: /app
