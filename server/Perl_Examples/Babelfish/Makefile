@@ -20,22 +20,22 @@ SIGNALWIRE := signalwire.com
 FIELDS := $$1" "$$2" "$$3" "$$5" "$$7
 NETRC := machine $(SIGNALWIRE) login password account
 PRINT := print $$4":"$$6":"$$8
-CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {$(PRINT)}' ~/.netrc)
+CONFIG := $(shell awk '$(FIELDS) == "$(NETRC)" {$(PRINT)}' ~/.netrc | tr : " ")
 ifneq ($(SHOWENV),)
 	export
 else
 	export PERL5LIB DEBUG SAVE_BLANK_CONVERSATIONS TOP_P TEMPERATURE
 endif
 
-run: /app/.env deps
-	source $< && NGROK_HOST=$${NGROK_URL:8} \
+run: /app/Makefile deps
+	$(CONFIG) NGROK_HOST=$${NGROK_URL:8} \
 	RELAY_URL="https://$${NGROK_HOST}/swml" \
 	carton exec perl $(WORKINGDIR)/app.pl 2>&1 | tee $(HOME)/app.log
 /app:
 	sudo mkdir $@
 /etc/sudoers.d/mount: mount
 	sudo cp $< $@
-/app/.env: /app .env
+/app/Makefile: /app
 	# can't check for presence of /etc/sudoers.d/mount due to permissions
 	# however, if you get prompted for a password here, it's not there.
 	if ! sudo umount $(@D); then \
@@ -46,8 +46,6 @@ run: /app/.env deps
 	 fi; \
 	fi
 	sudo mount --bind $(WORKINGDIR) $(@D)
-.env: .FORCE
-	echo '$(CONFIG)' | awk '{gsub(":","\n"); print}' > $@
 deps:
 	# NOTE: Occasionally the C module will fail to install.
 	# Re-running seems to resolve the issue.
