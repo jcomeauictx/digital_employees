@@ -30,12 +30,12 @@ endif
 run: /app/.env deps
 	source $< && NGROK_HOST=$${NGROK_URL:8} \
 	RELAY_URL="https://$${NGROK_HOST}/swml" \
-	carton exec perl $(WORKINGDIR)/app.pl
+	carton exec perl $(WORKINGDIR)/app.pl 2>&1 | tee $(HOME)/app.log
 /app:
 	sudo mkdir $@
 /etc/sudoers.d/mount: mount
 	sudo cp $< $@
-/app/.env: /app
+/app/.env: /app .env
 	# can't check for presence of /etc/sudoers.d/mount due to permissions
 	# however, if you get prompted for a password here, it's not there.
 	if ! sudo umount $(@D); then \
