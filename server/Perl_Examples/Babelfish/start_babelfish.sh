@@ -40,9 +40,9 @@ echo -e  "Complete!"
 ## APPLICATION
 # create symlink from WORKINGDIR to /app
 
-rm /app
+sudo rm /app || sudo rmdir /app
 if [ ! -h /app ]; then
-    ln -s ${WORKINGDIR} /app > /dev/null 2>&1
+    sudo ln -s ${WORKINGDIR} /app > /dev/null 2>&1
 fi
 
 # Set the Application ENV
