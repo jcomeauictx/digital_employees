@@ -80,5 +80,7 @@ endif
 ssh:
 	# if this fails, you need to add the IP address of your development
 	# system to /etc/hosts or to ~/.ssh/config
-	$@ -t remote $@ $(DEVBOX)
+	$@ -t remote $@ $(USER)@$(DEVBOX)
+rootssh:
+	make USER=root ssh
 .FORCE:
