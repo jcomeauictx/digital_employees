@@ -8,7 +8,9 @@ echo -e "Don't forget to cp -r env.example .env and edit the .env variables in $
 echo -e "                                    "
 echo -e "===================================="
 
+set -a  # enable automatic export
 source .env
+set +a  # disable automatic export
 
 #read -p "Please enter a FROM number associated with your SignalWire space.  Formatted as +15551234567: " FROM_NUMBER
 
